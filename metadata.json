@@ -1,0 +1,6 @@
+{
+  "name": "Chat",
+  "description": "Production-ready mobile messaging app with contacts, one-to-one chat, profile views, media attachments, and real-time local persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
