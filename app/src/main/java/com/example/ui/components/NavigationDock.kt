@@ -30,9 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.AccentPink
-import com.example.ui.theme.PrimaryBlue
-import com.example.ui.theme.PrimaryBlueDark
+import com.example.ui.theme.*
 import com.example.viewmodel.NavTab
 
 @Composable
@@ -46,38 +44,47 @@ fun LeftNavigationRail(
         modifier = modifier
             .width(64.dp)
             .fillMaxHeight()
-            .background(PrimaryBlue)
-            .padding(vertical = 24.dp),
+            .background(FacebookBlue)
+            .padding(vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Brand Logo container
+            // Brand Logo container (SocialNest)
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF6A9BFF))
+                    .background(Color(0xFF25D366))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { onTabSelected(NavTab.CONVERSATIONS) },
+                    ) { onTabSelected(NavTab.FEED) },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "◈",
+                    text = "SN",
                     color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Conversations / Chats Tab (Primary)
+            // Feed (Facebook News Feed)
+            RailNavItem(
+                icon = Icons.Outlined.DynamicFeed,
+                selectedIcon = Icons.Filled.DynamicFeed,
+                isSelected = activeTab == NavTab.FEED,
+                onClick = { onTabSelected(NavTab.FEED) },
+                testTag = "nav_feed"
+            )
+
+            // WhatsApp Chats
             RailNavItem(
                 icon = Icons.Outlined.ChatBubbleOutline,
                 selectedIcon = Icons.Filled.ChatBubble,
@@ -87,7 +94,16 @@ fun LeftNavigationRail(
                 testTag = "nav_conversations"
             )
 
-            // Calls Tab
+            // WhatsApp Status Updates
+            RailNavItem(
+                icon = Icons.Outlined.DonutLarge,
+                selectedIcon = Icons.Filled.DonutLarge,
+                isSelected = activeTab == NavTab.UPDATES,
+                onClick = { onTabSelected(NavTab.UPDATES) },
+                testTag = "nav_updates"
+            )
+
+            // WhatsApp Calls
             RailNavItem(
                 icon = Icons.Outlined.Call,
                 selectedIcon = Icons.Filled.Call,
@@ -95,33 +111,15 @@ fun LeftNavigationRail(
                 onClick = { onTabSelected(NavTab.CALLS) },
                 testTag = "nav_calls"
             )
-
-            // Contacts Tab
-            RailNavItem(
-                icon = Icons.Outlined.PeopleOutline,
-                selectedIcon = Icons.Filled.People,
-                isSelected = activeTab == NavTab.CONTACTS,
-                onClick = { onTabSelected(NavTab.CONTACTS) },
-                testTag = "nav_contacts"
-            )
-
-            // Notifications Tab
-            RailNavItem(
-                icon = Icons.Outlined.Notifications,
-                selectedIcon = Icons.Filled.Notifications,
-                isSelected = activeTab == NavTab.NOTIFICATIONS,
-                onClick = { onTabSelected(NavTab.NOTIFICATIONS) },
-                testTag = "nav_notifications"
-            )
         }
 
-        // Profile Avatar at bottom of Rail
+        // Profile / Menu Avatar at bottom of Rail
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.3f))
-                .border(2.dp, Color.White.copy(alpha = 0.5f), CircleShape)
+                .background(if (activeTab == NavTab.SETTINGS) Color.White else Color.White.copy(alpha = 0.3f))
+                .border(2.dp, Color.White.copy(alpha = 0.6f), CircleShape)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
@@ -130,10 +128,10 @@ fun LeftNavigationRail(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Filled.Person,
-                contentDescription = "My Profile",
-                tint = Color.White,
-                modifier = Modifier.size(22.dp)
+                imageVector = Icons.Filled.Menu,
+                contentDescription = "Menu & Profile",
+                tint = if (activeTab == NavTab.SETTINGS) FacebookBlue else Color.White,
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -149,7 +147,7 @@ fun BottomNavigationDock(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
             .navigationBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
@@ -158,57 +156,67 @@ fun BottomNavigationDock(
                 .shadow(
                     elevation = 16.dp,
                     shape = RoundedCornerShape(32.dp),
-                    spotColor = PrimaryBlue.copy(alpha = 0.22f),
-                    ambientColor = PrimaryBlue.copy(alpha = 0.12f)
+                    spotColor = FacebookBlue.copy(alpha = 0.22f),
+                    ambientColor = FacebookBlue.copy(alpha = 0.12f)
                 )
                 .clip(RoundedCornerShape(32.dp))
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // 1. Facebook Feed
+            BottomDockItem(
+                icon = Icons.Outlined.DynamicFeed,
+                selectedIcon = Icons.Filled.DynamicFeed,
+                label = "Feed",
+                isSelected = activeTab == NavTab.FEED,
+                activeColor = FacebookBlue,
+                onClick = { onTabSelected(NavTab.FEED) },
+                testTag = "bottom_nav_feed"
+            )
+
+            // 2. WhatsApp Chats
             BottomDockItem(
                 icon = Icons.Outlined.ChatBubbleOutline,
                 selectedIcon = Icons.Filled.ChatBubble,
                 label = "Chats",
                 isSelected = activeTab == NavTab.CONVERSATIONS,
                 badgeCount = unreadNotificationsCount,
+                activeColor = WhatsAppGreen,
                 onClick = { onTabSelected(NavTab.CONVERSATIONS) },
                 testTag = "bottom_nav_conversations"
             )
 
+            // 3. WhatsApp Updates (Status & Channels)
+            BottomDockItem(
+                icon = Icons.Outlined.DonutLarge,
+                selectedIcon = Icons.Filled.DonutLarge,
+                label = "Updates",
+                isSelected = activeTab == NavTab.UPDATES,
+                activeColor = WhatsAppGreen,
+                onClick = { onTabSelected(NavTab.UPDATES) },
+                testTag = "bottom_nav_updates"
+            )
+
+            // 4. WhatsApp Calls
             BottomDockItem(
                 icon = Icons.Outlined.Call,
                 selectedIcon = Icons.Filled.Call,
                 label = "Calls",
                 isSelected = activeTab == NavTab.CALLS,
+                activeColor = WhatsAppGreen,
                 onClick = { onTabSelected(NavTab.CALLS) },
                 testTag = "bottom_nav_calls"
             )
 
+            // 5. Facebook Menu / Profile
             BottomDockItem(
-                icon = Icons.Outlined.PeopleOutline,
-                selectedIcon = Icons.Filled.People,
-                label = "Contacts",
-                isSelected = activeTab == NavTab.CONTACTS,
-                onClick = { onTabSelected(NavTab.CONTACTS) },
-                testTag = "bottom_nav_contacts"
-            )
-
-            BottomDockItem(
-                icon = Icons.Outlined.Notifications,
-                selectedIcon = Icons.Filled.Notifications,
-                label = "Alerts",
-                isSelected = activeTab == NavTab.NOTIFICATIONS,
-                onClick = { onTabSelected(NavTab.NOTIFICATIONS) },
-                testTag = "bottom_nav_notifications"
-            )
-
-            BottomDockItem(
-                icon = Icons.Outlined.PersonOutline,
-                selectedIcon = Icons.Filled.Person,
-                label = "Profile",
+                icon = Icons.Outlined.Menu,
+                selectedIcon = Icons.Filled.Menu,
+                label = "Menu",
                 isSelected = activeTab == NavTab.SETTINGS,
+                activeColor = FacebookBlue,
                 onClick = { onTabSelected(NavTab.SETTINGS) },
                 testTag = "bottom_nav_profile"
             )
@@ -230,7 +238,7 @@ private fun RailNavItem(
         animationSpec = tween(220)
     )
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) PrimaryBlue else Color.White,
+        targetValue = if (isSelected) FacebookBlue else Color.White,
         animationSpec = tween(220)
     )
 
@@ -250,7 +258,7 @@ private fun RailNavItem(
             BadgedBox(
                 badge = {
                     Badge(
-                        containerColor = AccentPink,
+                        containerColor = WhatsAppGreen,
                         contentColor = Color.White,
                         modifier = Modifier.size(8.dp)
                     )
@@ -281,21 +289,22 @@ private fun BottomDockItem(
     label: String,
     isSelected: Boolean,
     badgeCount: Int = 0,
+    activeColor: Color = FacebookBlue,
     onClick: () -> Unit,
     testTag: String
 ) {
     val bgColor by animateColorAsState(
-        targetValue = if (isSelected) PrimaryBlue else Color.Transparent,
+        targetValue = if (isSelected) activeColor else Color.Transparent,
         animationSpec = tween(220)
     )
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) Color.White else PrimaryBlueDark.copy(alpha = 0.6f),
+        targetValue = if (isSelected) Color.White else TextSecondary,
         animationSpec = tween(220)
     )
 
     Box(
         modifier = Modifier
-            .size(44.dp)
+            .size(46.dp)
             .clip(CircleShape)
             .background(bgColor)
             .clickable(
@@ -309,7 +318,7 @@ private fun BottomDockItem(
             BadgedBox(
                 badge = {
                     Badge(
-                        containerColor = AccentPink,
+                        containerColor = WhatsAppGreen,
                         contentColor = Color.White,
                         modifier = Modifier.size(7.dp)
                     )

@@ -75,7 +75,7 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Welcome to Chat",
+                text = "Welcome to SocialNest",
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
@@ -84,7 +84,7 @@ fun AuthScreen(
             )
 
             Text(
-                text = "Simple, seamless messaging for everyone",
+                text = "Social feeds and encrypted messaging in one nest",
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextSecondary,
                 fontSize = 13.5.sp

@@ -22,6 +22,7 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Chat"
+rootProject.name = "SocialNest"
+
 
 include(":app")

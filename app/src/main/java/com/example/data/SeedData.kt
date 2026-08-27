@@ -568,4 +568,259 @@ object SeedData {
             )
         )
     }
+
+    fun getDefaultPosts(): List<FeedPost> = listOf(
+        FeedPost(
+            id = "post_1",
+            authorId = "contact_merry",
+            authorName = "Merry Art & Design",
+            authorAvatarResName = "avatar_merry",
+            authorAvatarColorHex = 0xFFFF86A8,
+            isVerified = true,
+            timeAgo = "2h • 🌐",
+            contentText = "✨ Excited to unveil the new Material 3 Editorial Design system! Combining the best of instant messaging speed with dynamic social feeds. What do you think about this color synergy? 🎨💙💜",
+            postGradientIndex = 0,
+            likesCount = 148,
+            commentsCount = 27,
+            sharesCount = 12,
+            userReaction = ReactionType.LOVE,
+            topReactions = listOf(ReactionType.LOVE, ReactionType.LIKE, ReactionType.CARE),
+            comments = listOf(
+                PostComment(
+                    id = "c_1",
+                    authorName = "Martin",
+                    authorAvatarResName = "avatar_martin",
+                    authorAvatarColorHex = 0xFF1877F2,
+                    text = "Looks incredible! Smooth animations and clean layouts. 👏🔥",
+                    timeAgo = "1h ago",
+                    likesCount = 8,
+                    isLiked = true
+                ),
+                PostComment(
+                    id = "c_2",
+                    authorName = "Bella",
+                    authorAvatarResName = "",
+                    authorAvatarColorHex = 0xFFFB7185,
+                    text = "Love the soft lavender and Facebook blue contrast! 💜",
+                    timeAgo = "45m ago",
+                    likesCount = 3,
+                    isLiked = false
+                )
+            ),
+            location = "San Francisco, CA"
+        ),
+        FeedPost(
+            id = "post_2",
+            authorId = "contact_martin",
+            authorName = "Martin Dev",
+            authorAvatarResName = "avatar_martin",
+            authorAvatarColorHex = 0xFF1877F2,
+            isVerified = false,
+            timeAgo = "4h • 👥",
+            contentText = "Weekend setup ready! Switch OLED connected to 4K monitor and Zelda TotK loaded. Who is ready for multiplayer sessions tonight? 🎮⚡",
+            postGradientIndex = 1,
+            likesCount = 89,
+            commentsCount = 19,
+            sharesCount = 4,
+            userReaction = ReactionType.LIKE,
+            topReactions = listOf(ReactionType.LIKE, ReactionType.HAHA),
+            comments = listOf(
+                PostComment(
+                    id = "c_3",
+                    authorName = "Alex Rivera",
+                    authorAvatarResName = "ic_chat_logo",
+                    authorAvatarColorHex = 0xFF1877F2,
+                    text = "Count me in for Mario Kart at 8 PM! 🏎️💨",
+                    timeAgo = "3h ago",
+                    likesCount = 5,
+                    isLiked = true
+                )
+            )
+        ),
+        FeedPost(
+            id = "post_3",
+            authorId = "contact_max",
+            authorName = "Max Runner",
+            authorAvatarResName = "",
+            authorAvatarColorHex = 0xFFA88BFF,
+            isVerified = false,
+            timeAgo = "6h • 🌐",
+            contentText = "Hit a new personal record on the morning 10K trail! 🏃‍♂️💨 43 mins 12 secs. Nothing beats starting the day before sunrise with fresh mountain air.",
+            postGradientIndex = 2,
+            likesCount = 214,
+            commentsCount = 31,
+            sharesCount = 8,
+            userReaction = null,
+            topReactions = listOf(ReactionType.WOW, ReactionType.CARE, ReactionType.LIKE),
+            comments = listOf(
+                PostComment(
+                    id = "c_4",
+                    authorName = "Sophia",
+                    authorAvatarResName = "",
+                    authorAvatarColorHex = 0xFFF59E0B,
+                    text = "Beast mode unlocked Max! 🏅",
+                    timeAgo = "5h ago",
+                    likesCount = 4
+                )
+            ),
+            location = "Golden Gate Park Trail"
+        ),
+        FeedPost(
+            id = "post_4",
+            authorId = "contact_sophia",
+            authorName = "Sophia Sun",
+            authorAvatarResName = "",
+            authorAvatarColorHex = 0xFFF59E0B,
+            isVerified = true,
+            timeAgo = "8h • 🌐",
+            contentText = "Coffee tasting session downtown ☕ Tried Ethiopian Yirgacheffe with floral jasmine notes. Highly recommend checking out the new roastery on 4th street!",
+            postGradientIndex = 3,
+            likesCount = 162,
+            commentsCount = 14,
+            sharesCount = 6,
+            userReaction = null,
+            topReactions = listOf(ReactionType.LOVE, ReactionType.LIKE)
+        )
+    )
+
+    fun getDefaultStatusUpdates(): List<UserStatusUpdate> = listOf(
+        UserStatusUpdate(
+            id = "status_me",
+            contactId = "user_me",
+            contactName = "My Status",
+            avatarResName = "ic_chat_logo",
+            avatarColorHex = 0xFF1877F2,
+            isSelf = true,
+            stories = listOf(
+                StatusStory(
+                    id = "story_me_1",
+                    text = "Building the ultimate Facebook + WhatsApp hybrid app! 🚀📱",
+                    mediaGradientIndex = 0,
+                    timeAgo = "30m ago",
+                    viewsCount = 38
+                )
+            ),
+            lastUpdatedText = "Tap to add status update",
+            isViewed = false
+        ),
+        UserStatusUpdate(
+            id = "status_martin",
+            contactId = "contact_martin",
+            contactName = "Martin",
+            avatarResName = "avatar_martin",
+            avatarColorHex = 0xFF1877F2,
+            isSelf = false,
+            stories = listOf(
+                StatusStory(
+                    id = "story_m_1",
+                    text = "Switch OLED docked and ready for weekend gaming 🎮",
+                    mediaGradientIndex = 1,
+                    timeAgo = "15m ago"
+                )
+            ),
+            lastUpdatedText = "15 minutes ago",
+            isViewed = false
+        ),
+        UserStatusUpdate(
+            id = "status_merry",
+            contactId = "contact_merry",
+            contactName = "Merry",
+            avatarResName = "avatar_merry",
+            avatarColorHex = 0xFFFF86A8,
+            isSelf = false,
+            stories = listOf(
+                StatusStory(
+                    id = "story_mer_1",
+                    text = "New UI palette drop! Soft lavender & royal blue vibes 🎨💜",
+                    mediaGradientIndex = 0,
+                    timeAgo = "45m ago"
+                )
+            ),
+            lastUpdatedText = "45 minutes ago",
+            isViewed = false
+        ),
+        UserStatusUpdate(
+            id = "status_bella",
+            contactId = "contact_bella",
+            contactName = "Bella",
+            avatarResName = "",
+            avatarColorHex = 0xFFFB7185,
+            isSelf = false,
+            stories = listOf(
+                StatusStory(
+                    id = "story_b_1",
+                    text = "Wireframing the new dark mode aesthetics 📐✨",
+                    mediaGradientIndex = 3,
+                    timeAgo = "2h ago"
+                )
+            ),
+            lastUpdatedText = "2 hours ago",
+            isViewed = true
+        ),
+        UserStatusUpdate(
+            id = "status_david",
+            contactId = "contact_david",
+            contactName = "David",
+            avatarResName = "",
+            avatarColorHex = 0xFF38BDF8,
+            isSelf = false,
+            stories = listOf(
+                StatusStory(
+                    id = "story_d_1",
+                    text = "Specialty coffee brewing workshop ☕👌",
+                    mediaGradientIndex = 2,
+                    timeAgo = "4h ago"
+                )
+            ),
+            lastUpdatedText = "4 hours ago",
+            isViewed = true
+        )
+    )
+
+    fun getDefaultChannels(): List<WhatsAppChannel> = listOf(
+        WhatsAppChannel(
+            id = "channel_tech",
+            name = "Tech Insider & AI News",
+            handle = "@techinsider",
+            avatarColorHex = 0xFF1877F2,
+            verified = true,
+            followersCount = "4.8M followers",
+            lastUpdateText = "🚀 Next-gen AI chips announced with 3x power efficiency and on-device neural processing.",
+            lastUpdateTime = "10:30 AM",
+            isFollowing = true
+        ),
+        WhatsAppChannel(
+            id = "channel_whatsapp",
+            name = "WhatsApp Official",
+            handle = "@whatsapp",
+            avatarColorHex = 0xFF25D366,
+            verified = true,
+            followersCount = "182M followers",
+            lastUpdateText = "✨ HD Photos, Screen Sharing, and Channels are now live worldwide!",
+            lastUpdateTime = "Yesterday",
+            isFollowing = true
+        ),
+        WhatsAppChannel(
+            id = "channel_meta",
+            name = "Meta Newsroom",
+            handle = "@meta",
+            avatarColorHex = 0xFF0866FF,
+            verified = true,
+            followersCount = "24M followers",
+            lastUpdateText = "Introducing cross-app communication features and seamless social sync.",
+            lastUpdateTime = "2 days ago",
+            isFollowing = false
+        ),
+        WhatsAppChannel(
+            id = "channel_gaming",
+            name = "PlayStation & Nintendo Hub",
+            handle = "@gaminghub",
+            avatarColorHex = 0xFFA88BFF,
+            verified = true,
+            followersCount = "8.3M followers",
+            lastUpdateText = "🎮 Top 10 co-op games to play this weekend with your squad.",
+            lastUpdateTime = "3 days ago",
+            isFollowing = false
+        )
+    )
 }

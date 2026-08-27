@@ -427,6 +427,25 @@ fun ConversationsScreen(
             }
         }
 
+        // WhatsApp Floating Action Button (New Chat)
+        FloatingActionButton(
+            onClick = { showNewChatSheet = true },
+            containerColor = WhatsAppGreen,
+            contentColor = Color.White,
+            shape = CircleShape,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 20.dp, bottom = 90.dp)
+                .shadow(6.dp, CircleShape)
+                .testTag("whatsapp_new_chat_fab")
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ChatBubble,
+                contentDescription = "New WhatsApp Chat",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
         // Floating Bottom Navigation Bar
         BottomNavigationDock(
             activeTab = uiState.activeNavTab,

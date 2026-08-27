@@ -1,6 +1,7 @@
 {
-  "name": "Chat",
-  "description": "Production-ready mobile messaging app with contacts, one-to-one chat, profile views, media attachments, and real-time local persistence.",
+  "name": "SocialNest",
+  "description": "A hybrid social messaging platform featuring dynamic feeds, 7-reaction system, stories, WhatsApp status updates, verified channels, voice/video calls, and encrypted messaging.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
+

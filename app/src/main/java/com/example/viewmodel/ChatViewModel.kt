@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.ChatDatabase
 import com.example.data.ChatRepository
+import com.example.data.SeedData
 import com.example.model.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,7 +15,9 @@ import kotlinx.coroutines.launch
 sealed class Screen {
     object Splash : Screen()
     object Auth : Screen()
+    object Feed : Screen()
     object Conversations : Screen()
+    object Updates : Screen()
     object Contacts : Screen()
     object Calls : Screen()
     data class Chat(val conversationId: String, val contactId: String) : Screen()
@@ -27,10 +30,10 @@ sealed class Screen {
 }
 
 enum class NavTab {
+    FEED,
     CONVERSATIONS,
+    UPDATES,
     CALLS,
-    CONTACTS,
-    NOTIFICATIONS,
     SETTINGS
 }
 
@@ -44,9 +47,9 @@ data class ActiveCallState(
 )
 
 data class UiState(
-    val currentScreen: Screen = Screen.Conversations,
+    val currentScreen: Screen = Screen.Feed,
     val previousScreen: Screen? = null,
-    val activeNavTab: NavTab = NavTab.CONVERSATIONS,
+    val activeNavTab: NavTab = NavTab.FEED,
     val currentUser: User? = null,
     val contacts: List<Contact> = emptyList(),
     val conversations: List<Conversation> = emptyList(),
@@ -55,6 +58,12 @@ data class UiState(
     val selectedConversation: Conversation? = null,
     val notifications: List<NotificationItem> = emptyList(),
     val callRecords: List<CallRecord> = emptyList(),
+    val feedPosts: List<FeedPost> = emptyList(),
+    val statusUpdates: List<UserStatusUpdate> = emptyList(),
+    val channels: List<WhatsAppChannel> = emptyList(),
+    val activeStoryViewer: UserStatusUpdate? = null,
+    val activeCommentsPost: FeedPost? = null,
+    val activeReactionPostId: String? = null,
     val searchQuery: String = "",
     val searchResults: List<Contact> = emptyList(),
     val messageSearchResults: List<Message> = emptyList(),
@@ -74,7 +83,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private var callTimerJob: Job? = null
     private var voiceRecordJob: Job? = null
 
-    private val _uiState = MutableStateFlow(UiState())
+    private val _uiState = MutableStateFlow(
+        UiState(
+            feedPosts = SeedData.getDefaultPosts(),
+            statusUpdates = SeedData.getDefaultStatusUpdates(),
+            channels = SeedData.getDefaultChannels()
+        )
+    )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     init {
@@ -147,13 +162,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.value.selectedConversation?.id ?: "conv_martin",
                 _uiState.value.selectedContact?.id ?: "contact_martin"
             )
-            is Screen.Search -> _uiState.value.previousScreen ?: Screen.Conversations
-            is Screen.Notifications -> Screen.Conversations
-            is Screen.UserProfile -> Screen.Conversations
-            is Screen.Calls -> Screen.Conversations
-            is Screen.Contacts -> Screen.Conversations
-            is Screen.NewConversation -> Screen.Conversations
-            else -> Screen.Conversations
+            is Screen.Search -> _uiState.value.previousScreen ?: Screen.Feed
+            is Screen.Notifications -> Screen.Feed
+            is Screen.UserProfile -> Screen.Feed
+            is Screen.Calls -> Screen.Feed
+            is Screen.Contacts -> Screen.Feed
+            is Screen.Updates -> Screen.Feed
+            is Screen.Conversations -> Screen.Feed
+            else -> Screen.Feed
         }
         _uiState.update { it.copy(currentScreen = target) }
     }
@@ -161,14 +177,190 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun setActiveNavTab(tab: NavTab) {
         _uiState.update { it.copy(activeNavTab = tab) }
         when (tab) {
+            NavTab.FEED -> navigateTo(Screen.Feed)
             NavTab.CONVERSATIONS -> navigateTo(Screen.Conversations)
+            NavTab.UPDATES -> navigateTo(Screen.Updates)
             NavTab.CALLS -> navigateTo(Screen.Calls)
-            NavTab.CONTACTS -> navigateTo(Screen.Contacts)
-            NavTab.NOTIFICATIONS -> navigateTo(Screen.Notifications)
             NavTab.SETTINGS -> navigateTo(Screen.UserProfile)
         }
     }
 
+    // --- Facebook Feed Actions ---
+    fun togglePostReaction(postId: String, reaction: ReactionType) {
+        _uiState.update { state ->
+            val updatedPosts = state.feedPosts.map { post ->
+                if (post.id == postId) {
+                    if (post.userReaction == reaction) {
+                        // Undo reaction
+                        post.copy(
+                            userReaction = null,
+                            likesCount = (post.likesCount - 1).coerceAtLeast(0)
+                        )
+                    } else {
+                        val diff = if (post.userReaction == null) 1 else 0
+                        post.copy(
+                            userReaction = reaction,
+                            likesCount = post.likesCount + diff
+                        )
+                    }
+                } else post
+            }
+            state.copy(feedPosts = updatedPosts, activeReactionPostId = null)
+        }
+    }
+
+    fun openReactionPicker(postId: String?) {
+        _uiState.update { it.copy(activeReactionPostId = postId) }
+    }
+
+    fun openPostComments(post: FeedPost?) {
+        _uiState.update { it.copy(activeCommentsPost = post) }
+    }
+
+    fun addPostComment(postId: String, commentText: String) {
+        if (commentText.isBlank()) return
+        val user = _uiState.value.currentUser
+        val newComment = PostComment(
+            id = "c_${System.currentTimeMillis()}",
+            authorName = user?.name ?: "Alex Rivera",
+            authorAvatarResName = user?.avatarResName ?: "ic_chat_logo",
+            authorAvatarColorHex = 0xFF1877F2,
+            text = commentText.trim(),
+            timeAgo = "Just now",
+            likesCount = 0,
+            isLiked = false
+        )
+
+        _uiState.update { state ->
+            val updatedPosts = state.feedPosts.map { post ->
+                if (post.id == postId) {
+                    val newComments = listOf(newComment) + post.comments
+                    post.copy(
+                        comments = newComments,
+                        commentsCount = post.commentsCount + 1
+                    )
+                } else post
+            }
+            val activePost = updatedPosts.firstOrNull { it.id == postId }
+            state.copy(feedPosts = updatedPosts, activeCommentsPost = activePost)
+        }
+        showToast("Comment posted!")
+    }
+
+    fun likePostComment(postId: String, commentId: String) {
+        _uiState.update { state ->
+            val updatedPosts = state.feedPosts.map { post ->
+                if (post.id == postId) {
+                    val updatedComments = post.comments.map { comment ->
+                        if (comment.id == commentId) {
+                            val liked = !comment.isLiked
+                            comment.copy(
+                                isLiked = liked,
+                                likesCount = if (liked) comment.likesCount + 1 else (comment.likesCount - 1).coerceAtLeast(0)
+                            )
+                        } else comment
+                    }
+                    post.copy(comments = updatedComments)
+                } else post
+            }
+            val activePost = updatedPosts.firstOrNull { it.id == postId }
+            state.copy(feedPosts = updatedPosts, activeCommentsPost = activePost)
+        }
+    }
+
+    fun createNewPost(text: String, gradientIndex: Int = -1, location: String? = null) {
+        if (text.isBlank()) return
+        val user = _uiState.value.currentUser
+        val newPost = FeedPost(
+            id = "post_${System.currentTimeMillis()}",
+            authorId = user?.id ?: "user_me",
+            authorName = user?.name ?: "Alex Rivera",
+            authorAvatarResName = user?.avatarResName ?: "ic_chat_logo",
+            authorAvatarColorHex = 0xFF1877F2,
+            isVerified = true,
+            timeAgo = "Just now • 🌐",
+            contentText = text.trim(),
+            postGradientIndex = gradientIndex,
+            likesCount = 1,
+            commentsCount = 0,
+            sharesCount = 0,
+            userReaction = ReactionType.LIKE,
+            topReactions = listOf(ReactionType.LIKE),
+            location = location
+        )
+
+        _uiState.update { state ->
+            state.copy(feedPosts = listOf(newPost) + state.feedPosts)
+        }
+        showToast("Post published to Feed!")
+    }
+
+    // --- WhatsApp Status Updates & Stories ---
+    fun openStoryViewer(status: UserStatusUpdate?) {
+        _uiState.update { state ->
+            if (status != null) {
+                // Mark as viewed
+                val updatedList = state.statusUpdates.map {
+                    if (it.id == status.id) it.copy(isViewed = true) else it
+                }
+                state.copy(activeStoryViewer = status, statusUpdates = updatedList)
+            } else {
+                state.copy(activeStoryViewer = null)
+            }
+        }
+    }
+
+    fun addStatusStory(text: String, gradientIndex: Int = 0) {
+        if (text.isBlank()) return
+        val newStory = StatusStory(
+            id = "story_${System.currentTimeMillis()}",
+            text = text.trim(),
+            mediaGradientIndex = gradientIndex,
+            timeAgo = "Just now",
+            viewsCount = 1
+        )
+
+        _uiState.update { state ->
+            val updated = state.statusUpdates.map { update ->
+                if (update.isSelf) {
+                    update.copy(
+                        stories = listOf(newStory) + update.stories,
+                        lastUpdatedText = "Just now"
+                    )
+                } else update
+            }
+            state.copy(statusUpdates = updated)
+        }
+        showToast("Status updated!")
+    }
+
+    fun replyToStatus(contactName: String, replyText: String) {
+        if (replyText.isBlank()) return
+        val contact = _uiState.value.contacts.firstOrNull { it.name.equals(contactName, ignoreCase = true) }
+            ?: _uiState.value.contacts.firstOrNull()
+        if (contact != null) {
+            openChatWithContact(contact)
+            sendMessage("Replied to status: $replyText")
+            _uiState.update { it.copy(activeStoryViewer = null) }
+            showToast("Reply sent to ${contact.name}")
+        }
+    }
+
+    // --- WhatsApp Channels Actions ---
+    fun toggleChannelFollow(channelId: String) {
+        _uiState.update { state ->
+            val updated = state.channels.map { channel ->
+                if (channel.id == channelId) {
+                    val following = !channel.isFollowing
+                    showToast(if (following) "Following ${channel.name}" else "Unfollowed ${channel.name}")
+                    channel.copy(isFollowing = following)
+                } else channel
+            }
+            state.copy(channels = updated)
+        }
+    }
+
+    // --- Messaging Actions ---
     fun loadChat(conversationId: String, contactId: String) {
         viewModelScope.launch {
             repository.getContactById(contactId).collect { contact ->
@@ -320,7 +512,6 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         voiceRecordJob?.cancel()
         _uiState.update { it.copy(isVoiceRecording = false, recordingDuration = 0) }
 
-        // Generate synthetic waveform
         val waveform = (1..16).map { (20..95).random() / 100f }.joinToString(",")
         sendMessage(
             text = "Voice message ($duration s)",
@@ -425,7 +616,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loginDemoUser() {
         _uiState.update { it.copy(isAuthenticated = true) }
-        navigateTo(Screen.Contacts)
+        navigateTo(Screen.Feed)
         showToast("Logged in as Alex Rivera")
     }
 
@@ -445,7 +636,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun addNewContact(name: String, status: String, phone: String) {
         if (name.isBlank()) return
         val letter = name.trim().first().uppercase()
-        val colors = listOf(0xFF568CF5, 0xFFFF86A8, 0xFFA88BFF, 0xFF4ADE80, 0xFFFBBF24, 0xFF38BDF8)
+        val colors = listOf(0xFF1877F2, 0xFFFF86A8, 0xFFA88BFF, 0xFF25D366, 0xFFFBBF24, 0xFF38BDF8)
         val newContact = Contact(
             id = "contact_" + System.currentTimeMillis(),
             name = name.trim(),

@@ -55,7 +55,7 @@ fun ChatApp(viewModel: ChatViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     // Handle back button presses
-    BackHandler(enabled = uiState.currentScreen !is Screen.Conversations && uiState.currentScreen !is Screen.Auth) {
+    BackHandler(enabled = uiState.currentScreen !is Screen.Feed && uiState.currentScreen !is Screen.Conversations && uiState.currentScreen !is Screen.Auth) {
         viewModel.navigateBack()
     }
 
@@ -69,7 +69,9 @@ fun ChatApp(viewModel: ChatViewModel) {
         ) { screen ->
             when (screen) {
                 is Screen.Auth -> AuthScreen(viewModel = viewModel)
+                is Screen.Feed -> FeedScreen(viewModel = viewModel)
                 is Screen.Conversations -> ConversationsScreen(viewModel = viewModel)
+                is Screen.Updates -> UpdatesScreen(viewModel = viewModel)
                 is Screen.Contacts -> ContactsScreen(viewModel = viewModel)
                 is Screen.Calls -> CallsScreen(viewModel = viewModel)
                 is Screen.Chat -> ChatScreen(viewModel = viewModel)
@@ -78,7 +80,7 @@ fun ChatApp(viewModel: ChatViewModel) {
                 is Screen.Notifications -> NotificationsScreen(viewModel = viewModel)
                 is Screen.Search -> SearchScreen(viewModel = viewModel)
                 is Screen.ActiveCall -> ActiveCallScreen(viewModel = viewModel)
-                else -> ConversationsScreen(viewModel = viewModel)
+                else -> FeedScreen(viewModel = viewModel)
             }
         }
 
